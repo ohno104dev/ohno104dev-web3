@@ -80,27 +80,28 @@ import helloImage from "./assets/hello.webp";
 const activeIndex = ref(0);
 const clock = ref(formatClock());
 const showWelcomeImage = ref(true);
+const publicPath = import.meta.env.BASE_URL;
 
 const cards = [
   {
     id: "about",
     label: "about",
-    contentUrl: "/cards/about.html",
+    contentUrl: `${publicPath}cards/about.html`,
   },
   {
     id: "career",
     label: "career",
-    contentUrl: "/cards/career.html",
+    contentUrl: `${publicPath}cards/career.html`,
   },
   {
     id: "contact",
     label: "contact",
-    contentUrl: "/cards/contact.html",
+    contentUrl: `${publicPath}cards/contact.html`,
   },
   {
     id: "web2",
     label: "web2",
-    contentUrl: "/cards/web2.html",
+    contentUrl: `${publicPath}cards/web2.html`,
   },
 ];
 

@@ -14,7 +14,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 const container = ref(null)
 const loadError = ref(false)
-const modelUrl = import.meta.env.VITE_AVATAR_GLB || '/models/base_basic_shaded.glb'
+const modelUrl = import.meta.env.VITE_AVATAR_GLB || `${import.meta.env.BASE_URL}models/base_basic_shaded.glb`
 
 let animationId
 let mixer
