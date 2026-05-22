@@ -37,20 +37,11 @@
             <span></span>
             <span></span>
           </div>
-          <div class="card-content">
-            <p class="eyebrow">{{ card.eyebrow }}</p>
-            <h1 v-html="card.title"></h1>
-            <p class="terminal-line">{{ card.command }}</p>
-            <p class="card-copy">{{ card.copy }}</p>
-            <div class="action-row">
-              <button class="primary-button" type="button">
-                {{ card.primary }}
-              </button>
-              <button class="ghost-button" type="button">
-                {{ card.secondary }}
-              </button>
-            </div>
-          </div>
+          <div
+            class="card-content"
+            v-html="cardHtml[card.id]"
+            @click="handleCardContentClick"
+          ></div>
         </article>
       </div>
 
@@ -58,10 +49,9 @@
 
       <aside class="side-nav" aria-label="Profile sections">
         <div class="identity">
-          <span class="diamond">AQ</span>
           <div>
-            <strong>AARON QUIRK</strong>
-            <small>CTO</small>
+            <strong>FELIX HUANG</strong>
+            <small>Software Engineer</small>
           </div>
         </div>
 
@@ -76,20 +66,6 @@
           <span>{{ String(index + 1).padStart(2, "0") }}</span>
           <strong>{{ card.label }}</strong>
         </button>
-
-        <a
-          class="web2-nav-link"
-          href="https://hi.ohno104.dev"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <span>04</span>
-          <strong>web2</strong>
-        </a>
-
-        <div class="made-with">
-          <span>Made with CodeX</span>
-        </div>
       </aside>
     </section>
   </main>
@@ -109,37 +85,42 @@ const cards = [
   {
     id: "about",
     label: "about",
-    eyebrow: "CTO.SH",
-    title: "Aaron <span>Quirk.</span>",
-    command: "$ building domain infrastructure",
-    copy: "Lifelong programmer with a passion for building things that scale. Deep in the domain industry, the infrastructure that keeps the internet's address book running.Lifelong programmer with a passion for building things that scale. Deep in the domain industry, the infrastructure that keeps the internet's address book running.Lifelong programmer with a passion for building things that scale. Deep in the domain industry, the infrastructure that keeps the internet's address book running.Lifelong programmer with a passion for building things that scale. Deep in the domain industry, the infrastructure that keeps the internet's address book running.",
-    primary: "view work",
-    secondary: "say hi",
+    contentUrl: "/cards/about.html",
   },
   {
-    id: "work",
-    label: "work",
-    eyebrow: "SHIP.LOG",
-    title: "Protocol <span>Work.</span>",
-    command: "$ deploying resilient web3 products",
-    copy: "From wallet-aware identity surfaces to trading dashboards, every screen is tuned for speed, clarity, and useful motion.",
-    primary: "open cases",
-    secondary: "stack",
+    id: "career",
+    label: "career",
+    contentUrl: "/cards/career.html",
   },
   {
-    id: "stack",
-    label: "stack",
-    eyebrow: "NODE.LAB",
-    title: "Modern <span>Stack.</span>",
-    command: "$ vue three binance realtime",
-    copy: "Vue drives the interface, Three.js renders the character, and Binance market data feeds the live crypto ticker across the top rail.",
-    primary: "inspect",
-    secondary: "contact",
+    id: "contact",
+    label: "contact",
+    contentUrl: "/cards/contact.html",
+  },
+  {
+    id: "web2",
+    label: "web2",
+    contentUrl: "/cards/web2.html",
   },
 ];
 
+const cardHtml = ref({});
+
 function setActive(index) {
   activeIndex.value = index;
+}
+
+function setActiveById(id) {
+  const index = cards.findIndex((card) => card.id === id);
+  if (index >= 0) setActive(index);
+}
+
+function handleCardContentClick(event) {
+  const target = event.target.closest("[data-card-target]");
+  if (!target) return;
+
+  event.preventDefault();
+  setActiveById(target.dataset.cardTarget);
 }
 
 function cardState(index) {
@@ -148,7 +129,8 @@ function cardState(index) {
 
   if (offset === 0) return "is-front";
   if (offset === 1) return "is-next";
-  return "is-back";
+  if (offset === 2) return "is-back";
+  return "is-far";
 }
 
 function formatClock() {
@@ -174,9 +156,22 @@ function formatClock() {
   };
 }
 
+async function loadCardHtml() {
+  const entries = await Promise.all(
+    cards.map(async (card) => {
+      const response = await fetch(card.contentUrl);
+      if (!response.ok) throw new Error(`Unable to load ${card.contentUrl}`);
+      return [card.id, await response.text()];
+    }),
+  );
+
+  cardHtml.value = Object.fromEntries(entries);
+}
+
 let clockTimer;
 
 onMounted(() => {
+  loadCardHtml();
   clockTimer = window.setInterval(() => {
     clock.value = formatClock();
   }, 1000);
